@@ -1,62 +1,113 @@
-# 🧠 Insurance Analysis Project
+# 🩺 Insurance Cost Analysis — EDA & Insights
 
 ## 🎯 Objetivo
-
-Este projeto tem como objetivo explorar e analisar dados relacionados a seguros de saúde, com foco em entender os fatores que influenciam o valor das cobranças (`charges`) aplicadas aos pacientes. A análise busca identificar padrões relevantes que possam orientar decisões estratégicas, segmentações e ações de precificação.
-
----
-
-## 🧰 Metodologia
-
-- **Exploração de dados**: análise descritiva das variáveis principais (idade, BMI, número de filhos, tabagismo, região).
-- **Segmentação de grupos**: criação de faixas de BMI para comparação entre pacientes com sobrepeso e sem.
-- **Visualizações**: uso de histogramas, boxplots e gráficos de dispersão para entender distribuições e relações.
-- **Testes estatísticos**:
-  - Shapiro-Wilk para normalidade
-  - Levene para variância
-  - Mann-Whitney para hipótese entre grupos não normais
+Explorar e compreender os fatores que influenciam os custos de seguro médico (`charges`) em uma base de clientes, 
+identificando padrões, correlações e **segmentos de alto custo (top 5%)**. 
+O estudo também define estratégias para **predição de propensão de alto custo** e **estimativa contínua de custo futuro**.
 
 ---
 
-## 📊 Principais Insights
+## 📊 Resumo das Informações
 
-Ao explorar os dados, identificamos uma diferença marcante entre os grupos de pacientes com **BMI ≥ 30** e **BMI < 30**. O grupo com índice de massa corporal mais elevado apresenta valores de cobrança significativamente maiores, evidenciado tanto pela **média** (sensível a outliers) quanto pela **mediana** (mais robusta e representativa do centro da distribuição).
+**Fonte dos dados:** `insurance.csv`  
+**Total de registros:** 1.338  
+**Variáveis principais:**
+| Coluna | Tipo | Descrição |
+|--------|------|------------|
+| age | int | Idade do indivíduo |
+| sex | object | Sexo (male/female) |
+| bmi | float | Índice de Massa Corporal (IMC) |
+| children | int | Número de dependentes |
+| smoker | object | Fumante ou não |
+| region | object | Região de residência |
+| charges | float | Custo total cobrado |
 
-Essa diferença inicial nos levou a investigar a **dispersão dos dados**, e de fato observamos uma variabilidade considerável dentro de cada grupo. Além disso, os testes de normalidade indicaram que os dados **não seguem distribuição normal**, o que nos direcionou para o uso de **testes não paramétricos**.
-
-Aplicando o **teste de Mann-Whitney**, conseguimos confirmar que a diferença entre os grupos é **estatisticamente significativa**, ou seja, **não é fruto do acaso**. Com esse resultado, temos respaldo para tratar os dois grupos de forma distinta e investigar estratégias específicas para entender os fatores que influenciam maiores cobranças.
-
----
-
-## 📈 Visualizações
-
-### Distribuição do BMI
-![Distribuição do BMI](images/distribuicao_bmi.png)
-
-### Distribuição de Charges com BMI ≥ 30
-![Charges BMI ≥ 30](images/charges_bmi_maior.png)
-
-### Charges vs BMI (com regressão)
-![Charges vs BMI](images/charges_vs_bmi.png)
-
-### Distribuição de Charges com BMI < 30
-![Charges BMI < 30](images/charges_bmi_menor.png)
-
-### Boxplot de Charges por Faixa de BMI
-![Boxplot Charges por BMI](images/boxplot_bmi.png)
-
-> Os gráficos acima foram gerados no notebook `insurance.ipynb` e salvos na pasta `images/`.
+**Qualidade dos dados:**  
+Sem valores ausentes. Distribuições contínuas assimétricas, especialmente `charges`.  
+3 variáveis categóricas e 4 numéricas.
 
 ---
 
-## 🔮 Próximos Passos
+## 📈 Resumo Executivo Visual
 
-- Criar modelos preditivos para estimar `charges` com base em variáveis como BMI, idade e tabagismo.
-- Investigar o impacto do tabagismo e da região geográfica nas cobranças.
-- Desenvolver dashboards interativos com Streamlit para visualização dinâmica.
-- Aplicar técnicas de clusterização para identificar perfis de pacientes.
+| Indicador | Destaque | Insight |
+|------------|-----------|----------|
+| 💨 **Fumantes** | 5x maior custo médio | Principal fator de risco |
+| ⚖️ **IMC** | Aumento após IMC > 30 | Relação não linear com custo |
+| 👶 **Idade** | Crescimento contínuo | Relevante após 40 anos |
+| 📍 **Região** | Diferenças pequenas | Fator secundário |
+| 💰 **Top 5%** | Fumantes com alto IMC e idade > 40 | Segmento prioritário |
 
 ---
 
-## 📁 Estrutura do Projeto
+## 🔍 Testes Estatísticos Utilizados
 
+| Teste | Aplicação | Objetivo |
+|-------|------------|-----------|
+| **Shapiro-Wilk** | Normalidade | Validar se as distribuições numéricas seguem normalidade |
+| **Levene** | Homocedasticidade | Verificar igualdade de variâncias entre grupos |
+| **Mann-Whitney U** | Comparação 2 grupos | Comparar fumantes vs não fumantes e sexo |
+| **Kruskal-Wallis** | Comparação múltiplos grupos | Testar diferenças por regiões e faixas de idade |
+
+Esses testes reforçaram que **as variáveis não seguem distribuição normal**, justificando o uso de métodos não paramétricos para comparação de médias e correlações.
+
+---
+
+## 🔍 Principais Insights da EDA
+
+1. **Fumantes** — variável mais impactante sobre os custos; efeito significativo confirmado por Mann-Whitney U (p < 0.001).  
+2. **IMC elevado (>30)** — influencia fortemente os custos, especialmente combinado com tabagismo.  
+3. **Idade** — aumento progressivo nos custos, efeito estatisticamente relevante (Kruskal p < 0.01).  
+4. **Região e sexo** — diferenças pouco expressivas, confirmadas pelos testes estatísticos.  
+5. **Top 5% de custo** — perfil típico: fumante, IMC elevado, idade > 40 anos.
+
+---
+
+## 🧭 Próximos Passos
+
+### 🔹 Extensão Analítica
+1. Criar **features derivadas** (`age_group`, `bmi_cat`, interações `smoker*bmi`, `smoker*age`).  
+2. Aplicar **log-transform** em `charges` para reduzir assimetria.  
+3. Analisar **importância de variáveis** via abordagens interpretáveis (ex.: SHAP, LIME).
+
+### 🔹 Modelagem Preditiva
+1. Construir dois modelos distintos:
+   - **Classificação:** prever **propensão de alto custo** (clientes top 5%).  
+   - **Regressão:** estimar **valor esperado de custo (`charges`)** contínuo.  
+2. Avaliar com métricas adequadas (ROC-AUC e RMSE, respectivamente).  
+3. Implementar pipeline de preparação, treino e scoring.  
+
+> 🔒 *Obs: O uso de bibliotecas específicas de machine learning (como scikit-learn) foi omitido nesta versão para foco na análise exploratória e no planejamento preditivo.*
+
+### 🔹 Negócio e Aplicação
+1. Criar **dashboard interativo** com filtros por `region`, `smoker`, `bmi_cat`, `age_group`.  
+2. Apoiar **estratégias de prevenção e precificação diferenciada**.  
+3. Utilizar resultados para políticas de mitigação de risco e recomendação personalizada.
+
+---
+
+## 📂 Estrutura do Projeto
+```
+insurance-analysis/
+│
+├── insurance.csv              # Base de dados original
+├── insurance.ipynb            # Notebook com EDA e análises estatísticas
+├── README_Insurance_Analysis.md # Documento de resumo e plano de ação
+└── outputs/
+    ├── figures/               # Gráficos e relatórios
+    └── tables/                # Tabelas de resumo e estatísticas
+```
+
+---
+
+## 🧰 Tecnologias
+- **Linguagem:** Python 3.x  
+- **Bibliotecas principais:** pandas, numpy, matplotlib, seaborn, scipy.stats  
+- **Ambiente:** Jupyter Notebook  
+
+---
+
+## 🧠 Conclusão
+A análise confirmou com **testes estatísticos robustos** que o hábito de fumar e o IMC elevado são fatores determinantes no custo de seguro.  
+Os próximos passos envolvem a **implementação de modelos de classificação e regressão** para previsão de propensão e custo futuro, 
+sustentando uma abordagem preditiva orientada a dados para o setor de seguros.
